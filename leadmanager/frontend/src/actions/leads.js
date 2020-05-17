@@ -2,11 +2,13 @@
 import axios from 'axios';
 import { createMessage, returnErrors } from './messages';
 
+import { tokenConfig } from './auth';
+
 import { GET_LEADS, DELETE_LEAD, ADD_LEAD, GET_ERRORS } from './types';
 
 // Making an async request using axios
-export const getLeads = () => dispatch => {
-    axios.get('/api/leads/')
+export const getLeads = () => (dispatch, getState) => {
+    axios.get('/api/leads/', tokenConfig(getState))
     .then(response => {
         dispatch({
             // Pass an object with type of GET_LEADS
@@ -17,8 +19,8 @@ export const getLeads = () => dispatch => {
     }).catch(err => dispatch(returnErrors(err.response.data, err.response.status)));
 }
 
-export const deleteLead = (id) => dispatch => {
-    axios.delete(`/api/leads/${id}`)
+export const deleteLead = (id) => (dispatch, getState) => {
+    axios.delete(`/api/leads/${id}`, tokenConfig(getState))
     .then(response => {
         dispatch(createMessage({
             deleteLead: "Lead Deleted!"
@@ -32,8 +34,8 @@ export const deleteLead = (id) => dispatch => {
     }).catch(err => console.log(err));
 }
 
-export const addLead = (lead) => dispatch => {
-    axios.post("/api/leads/", lead)
+export const addLead = (lead) => (dispatch, getState) => {
+    axios.post("/api/leads/", lead, tokenConfig(getState))
     .then(response => {
         // Dispatch the action directly
         dispatch(createMessage({
