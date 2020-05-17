@@ -1,7 +1,8 @@
 // Any actions go here: For example, HTTP Requests
 import axios from 'axios';
+import { createMessage, returnErrors } from './messages';
 
-import { GET_LEADS, DELETE_LEAD, ADD_LEAD } from './types';
+import { GET_LEADS, DELETE_LEAD, ADD_LEAD, GET_ERRORS } from './types';
 
 // Making an async request using axios
 export const getLeads = () => dispatch => {
@@ -13,12 +14,15 @@ export const getLeads = () => dispatch => {
             // And the payload data
             payload: response.data
         });
-    }).catch(err => console.log(err));
+    }).catch(err => dispatch(returnErrors(err.response.data, err.response.status)));
 }
 
 export const deleteLead = (id) => dispatch => {
     axios.delete(`/api/leads/${id}`)
     .then(response => {
+        dispatch(createMessage({
+            deleteLead: "Lead Deleted!"
+        }));
         dispatch({
             // Pass an object with type of GET_LEADS
             type: DELETE_LEAD,
@@ -31,11 +35,15 @@ export const deleteLead = (id) => dispatch => {
 export const addLead = (lead) => dispatch => {
     axios.post("/api/leads/", lead)
     .then(response => {
+        // Dispatch the action directly
+        dispatch(createMessage({
+            addLead: "Lead Added!"
+        }));
         dispatch({
             // Pass an object with type of GET_LEADS
             type: ADD_LEAD,
             // And the payload data
             payload: response.data
         });
-    }).catch(err => console.log(err));
-}
+    }).catch(err => dispatch(returnErrors(err.response.data, err.response.status)));
+};

@@ -6,8 +6,15 @@ from .serializers import LeadSerializer
 # We can use default routes and register endpoints, so that we can request from that endpoint
 
 class LeadViewSet(viewsets.ModelViewSet):
-    queryset = Lead.objects.all() # get all the fields to load the queryset
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
     ]
+    
     serializer_class = LeadSerializer
+
+    def get_queryset(self):
+        # Gets only the leads of that particular user
+        return self.request.user.leads.all()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
